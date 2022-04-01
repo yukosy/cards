@@ -1,17 +1,20 @@
-import org.junit.Assert;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
+import com.cards.entitty.Card;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import com.cards.repository.CardDB;
+
 
 public class CardTest {
+    CardDB db = new CardDB();
 
     @Test
     public void getMaxNumError() {
-        Card.cards.add(new Card("first","second",5));
-        Card.cards.add(new Card("third","forth",0));
-        Card.cards.add(new Card("fifth","sixth",7));
+        db.getCards().add(new Card("first","second",5));
+        db.getCards().add(new Card("third","forth",0));
+        db.getCards().add(new Card("fifth","sixth",7));
 
-        int num = Card.getMaxNumError();
-        Assert.assertEquals(num, 7);
+        int num = db.getMaxNumError();
+        Assertions.assertEquals(num, 7);
     }
 }

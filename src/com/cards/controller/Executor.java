@@ -1,3 +1,9 @@
+package com.cards.controller;
+
+import com.cards.entitty.Card;
+import com.cards.logger.Logger;
+import com.cards.repository.CardDB;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -5,6 +11,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Executor {
+    CardDB db = new CardDB();
     private final Logger logger;
     private final Scanner scanner;
 
@@ -12,8 +19,55 @@ public class Executor {
         this.logger = logger;
         this.scanner = scanner;
     }
+
+    public void init(String[] args) {
+        String variableImport = "-import";
+        String variableExport = "-export";
+        String fileImport = "";
+        String fileExport = "";
+        for (int i = 0; i < args.length; i = i + 2) {
+            if(variableImport.equals(args[i])) {
+                fileImport = args[i + 1];
+            } else if(variableExport.equals(args[i])) {
+                fileExport = args[i + 1];
+            }
+        }
+        logger.msg(" ");
+        logger.msg(" ");
+        int MIN_FILENAME_LENGTH = 4;
+        if(fileImport.length()> MIN_FILENAME_LENGTH) {
+            importFile(fileImport);
+        }
+        while (true) {
+            String inputMsg = "Input the action " +
+                    "(add, remove, import, export, ask, exit, log, hardest card, reset stats):";
+            logger.msg(inputMsg);
+            String input = scanner.nextLine();
+            logger.inputMsg(input);
+            switch (input) {
+                case "add" -> add();
+                case "remove" -> remove();
+                case "import" -> importFile();
+                case "export" -> export();
+                case "ask" -> ask();
+                case "log" -> log();
+                case "hardest card" -> getHardestCard();
+                case "reset stats" -> resetStats();
+                case "exit" -> {
+                    String byeMsg = "Bye bye!";
+                    logger.msg(byeMsg);
+                    if (fileExport.length() > 4) {
+                        export(fileExport);
+                    }
+                    System.exit(0);
+                }
+            }
+        }
+    }
+
+
     public String checkDefinition(String search) {
-        for (Card card : Card.cards) {
+        for (Card card : db.getCards()) {
             if (card.getDefinition().equals(search)) {
                 return card.getTerm();
             }
@@ -22,7 +76,7 @@ public class Executor {
     }
 
     public String checkTerm(String search) {
-        for (Card card : Card.cards) {
+        for (Card card : db.getCards()) {
             if (card.getTerm().equals(search)) {
                 return card.getDefinition();
             }
@@ -31,12 +85,12 @@ public class Executor {
     }
 
     public void replace(Card card) {
-        for (int i = 0; i < Card.cards.size(); i++) {
-            if (Card.cards.get(i).getTerm().equals(card.getTerm())) {
-                Card.cards.add(i, card);
+        for (int i = 0; i < db.getCards().size(); i++) {
+            if (db.getCards().get(i).getTerm().equals(card.getTerm())) {
+                db.getCards().add(i, card);
                 break;
-            } else if (Card.cards.get(i).getDefinition().equals(card.getDefinition())) {
-                Card.cards.add(i, card);
+            } else if (db.getCards().get(i).getDefinition().equals(card.getDefinition())) {
+                db.getCards().add(i, card);
                 break;
             }
         }
@@ -76,7 +130,7 @@ public class Executor {
             if (checkDefinition(definition) != null) {
                 message = "The definition \"" + definition + "\" already exists.";
             } else {
-                Card.cards.add(new Card(term, definition, 0));
+                db.getCards().add(new Card(term, definition, 0));
                 message = "The pair (\"" + term + "\":\"" + definition + "\") has been added";
             }
             logger.msg(message);
@@ -89,9 +143,9 @@ public class Executor {
         term = scanner.nextLine();
         logger.inputMsg(term);
         String message = "Can't remove \"" + term + "\": there is no such card.";
-        for (int i = 0; i < Card.cards.size(); i++) {
-            if (Card.cards.get(i).getTerm().equals(term)) {
-                Card.cards.remove(i);
+        for (int i = 0; i < db.getCards().size(); i++) {
+            if (db.getCards().get(i).getTerm().equals(term)) {
+                db.getCards().remove(i);
                 message = "The card has been removed.";
                 break;
             }
@@ -129,7 +183,7 @@ public class Executor {
                     if (checkTerm(term) != null || checkDefinition(definition) != null) {
                         replace(card);
                     } else {
-                        Card.cards.add(card);
+                        db.getCards().add(card);
                     }
                 }
                 logger.msg(array.size() + " cards have been loaded.");
@@ -156,7 +210,7 @@ public class Executor {
                 logger.msg("File already exists.");
             }
             FileWriter writer = new FileWriter(filePath, false);
-            for (Card card : Card.cards) {
+            for (Card card : db.getCards()) {
                 writer.write(card.getTerm() + ":" + card.getDefinition() + ":" + card.getError());
                 writer.append('\n');
                 count++;
@@ -174,7 +228,7 @@ public class Executor {
         logger.inputMsg(count + "");
         int i = 0;
         while (i < count) {
-            for (Card card : Card.cards) {
+            for (Card card : db.getCards()) {
                 giveCard(card);
                 i++;
                 if (i >= count) {
@@ -203,12 +257,12 @@ public class Executor {
     }
 
     public void getHardestCard() {
-        int max = Card.getMaxNumError();
-        if (Card.cards.size() == 0 || max == 0) {
+        int max = db.getMaxNumError();
+        if (db.getCards().size() == 0 || max == 0) {
             logger.msg("There are no cards with errors");
         } else {
             ArrayList<String> hardestCard = new ArrayList<>();
-            for (Card card : Card.cards) {
+            for (Card card : db.getCards()) {
                 if (card.getError() == max) {
                     hardestCard.add(card.getTerm());
                 }
@@ -233,10 +287,10 @@ public class Executor {
     }
 
     public void resetStats() {
-        for (Card card : Card.cards) {
+        for (Card card : db.getCards()) {
             card.setError(0);
         }
-        logger.msg("Card statistics have been reset.");
+        logger.msg("com.cards.entitty.Card statistics have been reset.");
     }
 
 }
