@@ -11,7 +11,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Executor {
-    CardDB db = new CardDB();
+    private final CardDB db = new CardDB();
     private final Logger logger;
     private final Scanner scanner;
 
