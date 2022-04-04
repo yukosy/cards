@@ -20,6 +20,14 @@ public class CardDB {
         return max;
     }
 
+    public void remove(Card card) {
+        cards.remove(card);
+    }
+
+    public void add(Card card) {
+        cards.add(card)
+    }
+
     public List<Card> getCards() {
         return cards;
     }
