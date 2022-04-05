@@ -1,23 +1,25 @@
+package com.cards.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Logger {
-    private final List<String> logger;
+    private final List<String> loggerList;
 
     public Logger() {
-        this.logger = new ArrayList<>();
+        this.loggerList = new ArrayList<>();
     }
 
     public List<String> getLogger() {
-        return logger;
+        return loggerList;
     }
 
     public void msg(String string) {
         System.out.println(string);
-        this.logger.add(string);
+        this.loggerList.add(string);
     }
 
     public void inputMsg(String string) {
-        this.logger.add(string);
+        this.loggerList.add(string);
     }
 }

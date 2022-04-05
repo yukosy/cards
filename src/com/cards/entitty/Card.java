@@ -1,24 +1,9 @@
-import java.util.ArrayList;
-import java.util.List;
+package com.cards.entitty;
 
 public class Card {
     private String term;
     private String definition;
     private int error;
-    static List<Card> cards = new ArrayList<>();
-
-    static public int getMaxNumError() {
-        int max = 0;
-        if(cards.size()>0) {
-            for (Card card : cards) {
-                if (card.getError() > max) {
-                    max = card.getError();
-                }
-            }
-        }
-
-        return max;
-    }
 
     public Card(String term, String definition, int error) {
         this.term = term;
