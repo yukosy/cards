@@ -86,11 +86,11 @@ public class Executor {
 
     public void replace(Card card) {
         for (int i = 0; i < db.getCards().size(); i++) {
-            if (db.getCards().get(i).getTerm().equals(card.getTerm())) {
-                db.getCards().add(i, card);
+            if (db.getTermWithIndex(i).equals(card.getTerm())) {
+                db.add(i, card);
                 break;
-            } else if (db.getCards().get(i).getDefinition().equals(card.getDefinition())) {
-                db.getCards().add(i, card);
+            } else if (db.getDefinitionWithIndex(i).equals(card.getDefinition())) {
+                db.add(i, card);
                 break;
             }
         }
@@ -130,7 +130,7 @@ public class Executor {
             if (checkDefinition(definition) != null) {
                 message = "The definition \"" + definition + "\" already exists.";
             } else {
-                db.getCards().add(new Card(term, definition, 0));
+                db.add(new Card(term, definition, 0));
                 message = "The pair (\"" + term + "\":\"" + definition + "\") has been added";
             }
             logger.msg(message);
@@ -144,8 +144,8 @@ public class Executor {
         logger.inputMsg(term);
         String message = "Can't remove \"" + term + "\": there is no such card.";
         for (int i = 0; i < db.getCards().size(); i++) {
-            if (db.getCards().get(i).getTerm().equals(term)) {
-                db.getCards().remove(i);
+            if (db.getTermWithIndex(i).equals(term)) {
+                db.remove(i);
                 message = "The card has been removed.";
                 break;
             }
@@ -183,7 +183,7 @@ public class Executor {
                     if (checkTerm(term) != null || checkDefinition(definition) != null) {
                         replace(card);
                     } else {
-                        db.getCards().add(card);
+                        db.add(card);
                     }
                 }
                 logger.msg(array.size() + " cards have been loaded.");
